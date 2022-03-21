@@ -4,6 +4,7 @@ namespace LecAuth.Service;
 
 public interface IUserRepository
 {
-    ApplicationUser? Read(string userName);
+    Task<ApplicationUser?> ReadAsync(string userName);
+    Task<ApplicationUser> CreateAsync(ApplicationUser user, string password);
 }
 
