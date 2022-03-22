@@ -4,6 +4,7 @@ using LecAuth.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Text;
 
 namespace LecAuth.Controllers;
 
@@ -80,6 +81,39 @@ public class HomeController : Controller
             return Content($"Created test user 'test{n}@test.com' with password 'Pass1!'");
         }
         return Content("The user was already created.");
+    }
+
+    public async Task<IActionResult> TestAssignUserToRole()
+    {
+        await _userRepo.AssignUserToRoleAsync("fake@email.com", "TestRole");
+        return Content("Assigned 'fake@email.com' to role 'TestRole'");
+    }
+
+    public async Task<IActionResult> HasRole(string userName, string roleName)
+    {
+        ApplicationUser? user = await _userRepo.ReadAsync(userName);
+        if (user!.HasRole(roleName))
+        {
+            return Content($"{userName} has role {roleName}");
+        }
+        return Content($"{userName} does not have role {roleName}");
+    }
+
+    public async Task<IActionResult> ShowRoles(string userName)
+    {
+        ApplicationUser? user = await _userRepo.ReadAsync(userName);
+        StringBuilder builder = new();
+        foreach (var roleName in user!.Roles)
+        {
+            builder.Append(roleName + " ");
+        }
+        return Content($"UserName: {user.UserName} Roles: {builder}");
+    }
+
+    [Authorize(Roles = "TestRole")]
+    public IActionResult TestRoleCheck()
+    {
+        return Content("Restricted to role TestRole");
     }
 
     public IActionResult Privacy()

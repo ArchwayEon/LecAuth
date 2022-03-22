@@ -17,6 +17,7 @@ builder.Services
     .AddDefaultIdentity<ApplicationUser>(
         options => options.SignIn.RequireConfirmedAccount = false)
     .AddUserManager<UserManager<ApplicationUser>>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, DbUserRepository>();
