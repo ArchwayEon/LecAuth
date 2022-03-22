@@ -21,8 +21,10 @@ builder.Services
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserRepository, DbUserRepository>();
+builder.Services.AddScoped<Initializer>();
 
 var app = builder.Build();
+await SeedDataAsync(app);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -50,3 +52,21 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+static async Task SeedDataAsync(WebApplication app)
+{
+    using var scope = app.Services.CreateScope();
+    var services = scope.ServiceProvider;
+    try
+    {
+        var initializer = services.GetRequiredService<Initializer>();
+        await initializer.SeedUsersAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(
+            $"An error occurred while seeding the database. {ex.Message}");
+    }
+}
+
